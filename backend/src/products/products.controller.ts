@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -31,6 +33,7 @@ export class ProductsController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED) 
   async createNewProduct(@Body() body: CreateProductDto): Promise<Products> {
     return await this.productsService.createProduct(body);
   }
@@ -47,6 +50,7 @@ export class ProductsController {
   }
 
   @Delete('/:id')
+  @HttpCode(HttpStatus.OK)
   async deleteProductById(@Param('id') id: string): Promise<DeleteResult> {
     return await this.productsService.deleteProductById(Number(id));
   }

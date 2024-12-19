@@ -1,0 +1,164 @@
+openapi: 3.0.0
+info:
+  title: FakeStore API
+  description: API para gestionar productos en FakeStore App.
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      summary: Obtiene todos los productos de la base de datos.
+      responses:
+        200:
+          description: Lista de productos obtenida con éxito.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        500:
+          description: Error al obtener los productos.
+    post:
+      summary: Crea un nuevo producto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductDto'
+      responses:
+        201:
+          description: Producto creado con éxito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Error al crear el producto.
+
+  /products/seed:
+    post:
+      summary: Llena la base de datos con datos iniciales.
+      responses:
+        201:
+          description: Base de datos llenada con éxito.
+        500:
+          description: Error al llenar la base de datos.
+
+  /products/{id}:
+    get:
+      summary: Obtiene un producto por su ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto.
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Producto encontrado con éxito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Producto no encontrado.
+    delete:
+      summary: Elimina un producto por su ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto.
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Producto eliminado con éxito.
+        404:
+          description: Producto no encontrado.
+
+  /products/{id}/stock:
+    put:
+      summary: Actualiza el stock de un producto.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStockDto'
+      responses:
+        200:
+          description: Stock actualizado con éxito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Producto no encontrado.
+        400:
+          description: Error al actualizar el stock.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops"
+        price:
+          type: number
+          example: 109.95
+        description:
+          type: string
+          example: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday"
+        category:
+          type: string
+          example: "men's clothing"
+        image:
+          type: string
+          example: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
+        stock:
+          type: integer
+          example: 100
+
+    CreateProductDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops"
+        price:
+          type: number
+          example: 109.95
+        description:
+          type: string
+          example: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday"
+        category:
+          type: string
+          example: "men's clothing"
+        image:
+          type: string
+          example: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
+        stock:
+          type: integer
+          example: 100
+
+    UpdateStockDto:
+      type: object
+      properties:
+        stock:
+          type: integer
+          example: 150

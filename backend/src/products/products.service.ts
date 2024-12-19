@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
@@ -47,13 +47,26 @@ export class ProductsService {
   }
 
   async createProduct(product: CreateProductDto): Promise<Products> {
-    const newProduct = this.productsRepository.create(product);
-    return await this.productsRepository.save(newProduct);
+    try {
+      const newProduct = this.productsRepository.create(product); 
+      const savedProduct = await this.productsRepository.save(newProduct); 
+      return savedProduct; 
+    } catch (error) {
+      throw new HttpException(
+        'Failed to create product',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async deleteProductById(id: number): Promise<DeleteResult> {
+    const product = await this.productsRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    }
     return await this.productsRepository.delete(id);
   }
+
   async updateProductStock(id: number, stock: number): Promise<Products> {
     const product = await this.productsRepository.findOne({ where: { id } });
     if (!product) {
@@ -63,11 +76,22 @@ export class ProductsService {
     return await this.productsRepository.save(product);
   }
 
-  async getProductById(id: number): Promise<Products> {
-    return await this.productsRepository.findOne({ where: { id } });
+    async getProductById(id: number): Promise<Products> {
+    const product = await this.productsRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    }
+    return product;
   }
 
   async getProductsFromDb(): Promise<Products[]> {
-    return await this.productsRepository.find();
+    try {
+      return await this.productsRepository.find();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to retrieve products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
